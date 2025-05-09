@@ -4,6 +4,7 @@ pipeline {
     environment {
         NETLIFY_SITE_ID = '544c48c7-8c6d-4651-852a-abb849bba628'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
+        REACT_APP_VERSION = '1.2.3'
     }
 
     stages {
@@ -132,13 +133,13 @@ pipeline {
                 }
             }
         }
-        stage('Approval') {
-            steps {
-                timeout(time: 15, unit: 'MINUTES') {
-                    input message: 'Do you wish to deploy to production? ', ok: 'Yes, I am sure!'
-                }
-             }
-        }
+        // stage('Approval') {
+        //     steps {
+        //         timeout(time: 15, unit: 'MINUTES') {
+        //             input message: 'Do you wish to deploy to production? ', ok: 'Yes, I am sure!'
+        //         }
+        //      }
+        // }
         // stage("Deploy Prod") {
         //     agent {
         //         docker {
@@ -157,7 +158,7 @@ pipeline {
         //         '''
                 
         //     }
-        // }
+        // }  //got merged into one
         stage("Deploy Prod") {
             // end to end test using playwright tool
             agent {
