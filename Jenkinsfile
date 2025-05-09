@@ -60,7 +60,7 @@ pipeline {
                     // end to end test using playwright tool
                     agent {
                         docker {
-                            image "mcr.microsoft.com/playwright:v1.39.0-jammy"
+                            image "my-playwright"
                             reuseNode true
                             // args '-u root:root'
                         }
@@ -68,8 +68,8 @@ pipeline {
                     steps {
                         sh '''
                         echo "Hello World"
-                        npm install serve
-                        node_modules/.bin/serve -s build &
+                        # npm install serve
+                        serve -s build &
                         sleep 10
                         npx playwright test --reporter=html
                         '''         
