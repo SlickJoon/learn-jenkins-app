@@ -92,9 +92,36 @@ pipeline {
                    echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
                    node_modules/.bin/netlify status
                    node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
-                   node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json
+                   
                 '''
-                
+                script {
+                    env.STAGING_URL = sh(script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json", returnStdout: true)
+                }
+            }
+            
+        }
+        stage("Staging E2E") {
+            // end to end test using playwright tool
+            agent {
+                docker {
+                    image "mcr.microsoft.com/playwright:v1.39.0-jammy"
+                    reuseNode true
+                    // args '-u root:root'
+                }
+            }
+            environment {
+                CI_ENVIRONMENT_URL = "${env.STAGING_URL}"
+            }
+            steps {
+                sh '''
+                echo "Hello World"
+                npx playwright test --reporter=html
+                '''         
+            }
+            post {
+                always {
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Staging E2E', reportTitles: '', useWrapperFileDirectly: true])
+                }
             }
         }
         stage('Approval') {
@@ -104,26 +131,26 @@ pipeline {
                 }
              }
         }
-        stage("Deploy Prod") {
-            agent {
-                docker {
-                    image "node:18-alpine"
-                    reuseNode true
-                }
-            }
-            steps {
-                sh '''
-                   echo "Hello World!!"
-                   npm install netlify-cli@20.1.1
-                   node_modules/.bin/netlify --version
-                   echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
-                   node_modules/.bin/netlify status
-                   node_modules/.bin/netlify deploy --dir=build --prod
-                '''
+        // stage("Deploy Prod") {
+        //     agent {
+        //         docker {
+        //             image "node:18-alpine"
+        //             reuseNode true
+        //         }
+        //     }
+        //     steps {
+        //         sh '''
+        //            echo "Hello World!!"
+        //            npm install netlify-cli@20.1.1
+        //            node_modules/.bin/netlify --version
+        //            echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
+        //            node_modules/.bin/netlify status
+        //            node_modules/.bin/netlify deploy --dir=build --prod
+        //         '''
                 
-            }
-        }
-        stage("Prod E2E") {
+        //     }
+        // }
+        stage("Deploy Prod") {
             // end to end test using playwright tool
             agent {
                 docker {
@@ -137,13 +164,20 @@ pipeline {
             }
             steps {
                 sh '''
-                echo "Hello World"
+
+                echo "Hello World!!"
+                node --version
+                npm install netlify-cli@20.1.1
+                node_modules/.bin/netlify --version
+                echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
+                node_modules/.bin/netlify status
+                node_modules/.bin/netlify deploy --dir=build --prod
                 npx playwright test --reporter=html
                 '''         
             }
             post {
                 always {
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright E2E', reportTitles: '', useWrapperFileDirectly: true])
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Prod E2E', reportTitles: '', useWrapperFileDirectly: true])
                 }
             }
         }
