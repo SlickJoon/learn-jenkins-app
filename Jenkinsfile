@@ -5,6 +5,7 @@ pipeline {
         NETLIFY_SITE_ID = '544c48c7-8c6d-4651-852a-abb849bba628'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
         REACT_APP_VERSION = "1.0.${BUILD_ID}"
+        AWS_DEFAULT_REGION = 'us-east-1'
     }
 
     stages {
@@ -34,7 +35,7 @@ pipeline {
                 
             }
         }
-        stage('AWS'){
+        stage('Deploy to AWS'){
             agent {
                 docker {
                     image 'amazon/aws-cli'
@@ -53,6 +54,7 @@ pipeline {
                     # echo "Hello S3!" > index.html
                     # aws s3 cp index.html s3://$AWS_S3_BUCKET/index.html
                     aws s3 sync build s3://$AWS_S3_BUCKET
+                    aws ecs register-task-definition --cli-input-json file://aws/task-definition-prod.json
                     '''
                 }
                 
