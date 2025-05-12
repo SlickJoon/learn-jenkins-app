@@ -55,8 +55,8 @@ pipeline {
                     # echo "Hello S3!" > index.html
                     # aws s3 cp index.html s3://$AWS_S3_BUCKET/index.html
                     aws s3 sync build s3://$AWS_S3_BUCKET
-                    LATEST_TD_REVISION = $(aws ecs register-task-definition --cli-input-json file://aws/task-definition-prod.json | jq '.taskDefinition.revision')
-                    echo "$LATEST_TD_REVISION"
+                    LATEST_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition-prod.json | jq '.taskDefinition.revision')
+                    echo $LATEST_TD_REVISION
                     aws ecs update-service --cluster LearnJenkinsApp-Cluster --service LearnJenkinsApp-prod-TD-service-nsytor1q --task-definition LearnJenkinsApp-prod-TD:$LATEST_TD_REVISION
                     aws ecs wait services-stable --cluster LearnJenkinsApp-Cluster --services LearnJenkinsApp-prod-TD-service-nsytor1q
                     '''
