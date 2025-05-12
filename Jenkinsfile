@@ -55,6 +55,7 @@ pipeline {
                     # aws s3 cp index.html s3://$AWS_S3_BUCKET/index.html
                     aws s3 sync build s3://$AWS_S3_BUCKET
                     aws ecs register-task-definition --cli-input-json file://aws/task-definition-prod.json
+                    aws ecs update-service --cluster LearnJenkinsApp-Cluster --service LearnJenkinsApp-prod-TD-service-nsytor1q --task-definition LearnJenkinsApp-prod-TD:2
                     '''
                 }
                 
