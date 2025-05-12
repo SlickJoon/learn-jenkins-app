@@ -5,8 +5,8 @@
     "family": "LearnJenkinsApp-prod-TD",
     "containerDefinitions": [
         {
-            "name": "nginx",
-            "image": "nginx:1.27-alpine",
+            "name": "myjenkinsapp",
+            "image": "767828749943.dkr.ecr.us-east-1.amazonaws.com/myjenkinsapp:#APP_VERSION#",
             "portMappings": [
                 {
                     "containerPort": 80,
@@ -22,5 +22,5 @@
     "networkMode": "awsvpc",
     "memory": "0.5 GB",
     "cpu": ".25 vCPU",
-    "executionRoleArn": ""
+    "executionRoleArn": "arn:aws:iam::767828749943:role/ecsTaskExecutionRole"
 }
